@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎺 Trumpet Simulator</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #100c04;
+      color: #e8c84a;
+      font-family: 'Georgia', 'Times New Roman', serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      user-select: none;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    header h1 {
+      font-size: 2rem;
+      color: #d4a800;
+      letter-spacing: 0.06em;
+      text-shadow: 0 0 24px #d4a80055;
+    }
+    header p {
+      font-size: 0.82rem;
+      color: #7a5f1a;
+      margin-top: 5px;
+      letter-spacing: 0.04em;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 190px 1fr 230px;
+      gap: 16px;
+      width: 100%;
+      max-width: 820px;
+    }
+
+    .panel {
+      background: #1c1508;
+      border: 1px solid #5a430e;
+      border-radius: 14px;
+      padding: 18px 16px;
+    }
+
+    .panel-title {
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      color: #7a5f1a;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    /* ── Partial buttons ── */
+    .partial-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 11px;
+      margin-bottom: 7px;
+      border: 1px solid #3a2a08;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.08s;
+      background: #120e04;
+    }
+    .partial-btn:hover { border-color: #7a5f1a; }
+    .partial-btn.active {
+      background: #3a2500;
+      border-color: #d4a800;
+      box-shadow: 0 0 10px #d4a80033;
+    }
+
+    .key-chip {
+      background: #1c1508;
+      border: 1px solid #5a430e;
+      border-radius: 5px;
+      padding: 2px 7px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      min-width: 26px;
+      text-align: center;
+      color: #c8a040;
+      font-weight: bold;
+    }
+    .partial-btn.active .key-chip {
+      background: #d4a800;
+      color: #120e04;
+      border-color: #d4a800;
+    }
+
+    .partial-name {
+      font-size: 0.82rem;
+      color: #a07820;
+    }
+    .partial-btn.active .partial-name { color: #ffd040; }
+
+    .partial-note {
+      margin-left: auto;
+      font-size: 0.75rem;
+      color: #5a430e;
+    }
+    .partial-btn.active .partial-note { color: #a07820; }
+
+    /* ── Center panel ── */
+    .center-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 20px;
+    }
+
+    .note-display {
+      text-align: center;
+      margin-bottom: 20px;
+      min-height: 110px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .note-name {
+      font-size: 5.5rem;
+      font-weight: bold;
+      line-height: 1;
+      color: #ffd040;
+      text-shadow: 0 0 30px #ffd04077;
+      transition: color 0.08s;
+      min-width: 160px;
+      text-align: center;
+    }
+    .note-name.silent { color: #3a2a08; text-shadow: none; }
+
+    .note-written {
+      font-size: 0.8rem;
+      color: #7a5f1a;
+      margin-top: 5px;
+    }
+    .note-concert {
+      font-size: 0.78rem;
+      color: #5a430e;
+      margin-top: 2px;
+    }
+
+    /* ── Valves ── */
+    .valves-section {
+      display: flex;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .valve-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .valve-piston-wrap {
+      position: relative;
+      width: 58px;
+      height: 90px;
+    }
+
+    /* Casing (tube context) */
+    .valve-casing {
+      position: absolute;
+      inset: 0;
+      border-radius: 8px;
+      border: 2px solid #4a3508;
+      background: #0e0a02;
+      overflow: hidden;
+    }
+
+    /* The piston itself */
+    .valve-piston {
+      position: absolute;
+      left: 4px;
+      right: 4px;
+      top: 4px;
+      height: 38px;
+      border-radius: 5px;
+      background: linear-gradient(160deg, #8a6a20 0%, #5a430e 50%, #3a2a08 100%);
+      border: 1px solid #c8a040;
+      transition: top 0.07s cubic-bezier(0.25, 0, 0.5, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .valve-piston::after {
+      content: '';
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      right: 5px;
+      height: 5px;
+      border-radius: 2px;
+      background: rgba(255,220,80,0.15);
+    }
+
+    .valve-col.pressed .valve-piston {
+      top: 44px;
+      background: linear-gradient(160deg, #d4a800 0%, #a07820 50%, #7a5f1a 100%);
+      border-color: #ffd040;
+      box-shadow: 0 0 12px #d4a80066;
+    }
+
+    .valve-key-label {
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      font-weight: bold;
+      color: #7a5f1a;
+    }
+    .valve-col.pressed .valve-key-label { color: #ffd040; }
+
+    .valve-num-label {
+      font-size: 0.7rem;
+      color: #4a3508;
+    }
+    .valve-col.pressed .valve-num-label { color: #a07820; }
+
+    /* ── Status ── */
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: #4a3508;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #2a1e06;
+      transition: background 0.1s, box-shadow 0.1s;
+      flex-shrink: 0;
+    }
+    .status-dot.playing {
+      background: #ffd040;
+      box-shadow: 0 0 6px #ffd040aa;
+    }
+
+    /* ── Fingering guide ── */
+    .guide-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 5px 12px;
+      font-size: 0.8rem;
+    }
+
+    .guide-note { color: #a07820; }
+    .guide-keys {
+      color: #5a430e;
+      font-family: 'Courier New', monospace;
+      text-align: right;
+    }
+    .guide-note.current { color: #ffd040; font-weight: bold; }
+    .guide-keys.current { color: #ffd040; font-weight: bold; }
+
+    .guide-empty {
+      font-size: 0.78rem;
+      color: #3a2a08;
+      line-height: 1.5;
+    }
+
+    .guide-partial-header {
+      grid-column: 1 / -1;
+      font-size: 0.7rem;
+      color: #5a430e;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      margin-top: 2px;
+    }
+
+    /* ── Footer instructions ── */
+    footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: #4a3508;
+      line-height: 1.7;
+    }
+    footer kbd {
+      background: #1c1508;
+      border: 1px solid #4a3508;
+      border-radius: 3px;
+      padding: 1px 5px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.75rem;
+      color: #8a6a20;
+    }
+
+    @media (max-width: 680px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🎺 Trumpet Simulator</h1>
+  <p>Bb Trumpet · Web Audio Synthesis</p>
+</header>
+
+<div class="layout">
+
+  <!-- Left: Partial selector -->
+  <div class="panel">
+    <div class="panel-title">Partial (hold)</div>
+    <div id="partial-list"></div>
+  </div>
+
+  <!-- Center: Note display + valves -->
+  <div class="panel center-panel">
+    <div class="note-display">
+      <div class="note-name silent" id="note-name">—</div>
+      <div class="note-written" id="note-written"></div>
+      <div class="note-concert" id="note-concert"></div>
+    </div>
+
+    <div class="valves-section">
+      <div class="valve-col" id="valve-col-1">
+        <div class="valve-piston-wrap">
+          <div class="valve-casing"></div>
+          <div class="valve-piston"></div>
+        </div>
+        <div class="valve-key-label">J</div>
+        <div class="valve-num-label">1st</div>
+      </div>
+      <div class="valve-col" id="valve-col-2">
+        <div class="valve-piston-wrap">
+          <div class="valve-casing"></div>
+          <div class="valve-piston"></div>
+        </div>
+        <div class="valve-key-label">K</div>
+        <div class="valve-num-label">2nd</div>
+      </div>
+      <div class="valve-col" id="valve-col-3">
+        <div class="valve-piston-wrap">
+          <div class="valve-casing"></div>
+          <div class="valve-piston"></div>
+        </div>
+        <div class="valve-key-label">L</div>
+        <div class="valve-num-label">3rd</div>
+      </div>
+    </div>
+
+    <div class="status-row">
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-text">Hold a partial key to begin</span>
+    </div>
+  </div>
+
+  <!-- Right: Fingering guide -->
+  <div class="panel">
+    <div class="panel-title">Notes in Partial</div>
+    <div class="guide-grid" id="guide-grid">
+      <div class="guide-empty">Select a partial to see available notes.</div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <kbd>A</kbd>–<kbd>H</kbd> hold for partial &nbsp;·&nbsp;
+  <kbd>J</kbd><kbd>K</kbd><kbd>L</kbd> hold for valves (1st / 2nd / 3rd)
+  &nbsp;·&nbsp; combine freely
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════
+//  MUSIC THEORY
+// ═══════════════════════════════════════════════
+
+const PC_NAMES = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+
+function midiToName(midi) {
+  const pc  = ((midi % 12) + 12) % 12;
+  const oct = Math.floor(midi / 12) - 1;
+  return PC_NAMES[pc] + oct;
+}
+
+function midiToFreq(midi) {
+  return 440 * Math.pow(2, (midi - 69) / 12);
+}
+
+// Written Bb trumpet MIDI for each harmonic partial
+// (concert pitch = written - 2 semitones)
+const PARTIAL_INFO = [
+  { partial: 2, writtenMidi: 58,  label: '2nd',      hint: 'Bb3' },
+  { partial: 3, writtenMidi: 65,  label: '3rd',      hint: 'F4'  },
+  { partial: 4, writtenMidi: 70,  label: '4th',      hint: 'Bb4' },
+  { partial: 5, writtenMidi: 74,  label: '5th',      hint: 'D5'  },
+  { partial: 6, writtenMidi: 77,  label: '6th',      hint: 'F5'  },
+  { partial: 7, writtenMidi: 80,  label: '7th ♭',    hint: 'Ab5' },
+];
+
+const PARTIAL_KEYS = { a:2, s:3, d:4, f:5, g:6, h:7 };
+const PARTIAL_BY_NUM = {};
+PARTIAL_INFO.forEach(p => PARTIAL_BY_NUM[p.partial] = p);
+
+// All 7 valve combos in musical order (fewest valves first, least semitones first)
+const VALVE_COMBOS = [
+  { v:[0,0,0], label:'Open'  },
+  { v:[0,1,0], label:'K'     },
+  { v:[1,0,0], label:'J'     },
+  { v:[1,1,0], label:'J+K'   },
+  { v:[0,1,1], label:'K+L'   },
+  { v:[1,0,1], label:'J+L'   },
+  { v:[1,1,1], label:'J+K+L' },
+];
+
+function valveSemitones(v) {
+  return -(v[0]*2 + v[1]*1 + v[2]*3);
+}
+
+// ═══════════════════════════════════════════════
+//  AUDIO ENGINE
+// ═══════════════════════════════════════════════
+
+let actx = null;
+let masterGain = null;
+let filterNode = null;
+let oscNodes = [];          // { osc, gainNode, mult }
+let isPlaying = false;
+
+const HARMONICS = [
+  { mult:1, gain:0.55 },
+  { mult:2, gain:0.22 },
+  { mult:3, gain:0.12 },
+  { mult:4, gain:0.06 },
+  { mult:5, gain:0.03 },
+];
+
+function initAudio() {
+  if (actx) return;
+  actx = new (window.AudioContext || window.webkitAudioContext)();
+
+  masterGain = actx.createGain();
+  masterGain.gain.value = 0;
+
+  filterNode = actx.createBiquadFilter();
+  filterNode.type = 'lowpass';
+  filterNode.frequency.value = 3000;
+  filterNode.Q.value = 0.6;
+
+  // Slight saturation for warmth
+  const waveShaper = actx.createWaveShaper();
+  waveShaper.curve = softClip(256, 18);
+  waveShaper.oversample = '4x';
+
+  masterGain.connect(waveShaper);
+  waveShaper.connect(filterNode);
+  filterNode.connect(actx.destination);
+
+  // Persistent oscillators
+  HARMONICS.forEach(({ mult, gain }) => {
+    const osc = actx.createOscillator();
+    const gn  = actx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.value = 440 * mult;
+    gn.gain.value = gain;
+    osc.connect(gn);
+    gn.connect(masterGain);
+    osc.start();
+    oscNodes.push({ osc, gainNode: gn, mult });
+  });
+}
+
+function softClip(n, amount) {
+  const curve = new Float32Array(n);
+  for (let i = 0; i < n; i++) {
+    const x = (i * 2) / n - 1;
+    curve[i] = (Math.PI + amount) * x / (Math.PI + amount * Math.abs(x));
+  }
+  return curve;
+}
+
+function setNote(freq) {
+  initAudio();
+  if (actx.state === 'suspended') actx.resume();
+  const now = actx.currentTime;
+
+  // Update oscillator frequencies smoothly
+  oscNodes.forEach(({ osc, mult }) => {
+    osc.frequency.cancelScheduledValues(now);
+    osc.frequency.setTargetAtTime(freq * mult, now, 0.012);
+  });
+
+  // Update filter cutoff
+  filterNode.frequency.cancelScheduledValues(now);
+  filterNode.frequency.setTargetAtTime(Math.min(freq * 7, 12000), now, 0.015);
+
+  if (!isPlaying) {
+    masterGain.gain.cancelScheduledValues(now);
+    masterGain.gain.setValueAtTime(masterGain.gain.value, now);
+    masterGain.gain.linearRampToValueAtTime(0.28, now + 0.07);
+    isPlaying = true;
+  }
+}
+
+function stopNote() {
+  if (!actx || !isPlaying) return;
+  const now = actx.currentTime;
+  masterGain.gain.cancelScheduledValues(now);
+  masterGain.gain.setValueAtTime(masterGain.gain.value, now);
+  masterGain.gain.linearRampToValueAtTime(0, now + 0.11);
+  isPlaying = false;
+}
+
+// ═══════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════
+
+const partialHeld  = new Set();   // partial numbers currently held
+const valvesHeld   = new Set();   // 'j','k','l'
+
+function activePartial() {
+  // Highest partial held (player chooses by which key they hold)
+  if (partialHeld.size === 0) return null;
+  return Math.max(...partialHeld);
+}
+
+function valveVector() {
+  return [
+    valvesHeld.has('j') ? 1 : 0,
+    valvesHeld.has('k') ? 1 : 0,
+    valvesHeld.has('l') ? 1 : 0,
+  ];
+}
+
+// ═══════════════════════════════════════════════
+//  UPDATE LOGIC
+// ═══════════════════════════════════════════════
+
+function update() {
+  const partial = activePartial();
+  const v = valveVector();
+  const pInfo = partial ? PARTIAL_BY_NUM[partial] : null;
+
+  if (pInfo) {
+    const offset      = valveSemitones(v);
+    const writtenMidi = pInfo.writtenMidi + offset;
+    const concertMidi = writtenMidi - 2;
+    const freq        = midiToFreq(concertMidi);
+
+    setNote(freq);
+
+    document.getElementById('note-name').textContent    = midiToName(writtenMidi);
+    document.getElementById('note-name').classList.remove('silent');
+    document.getElementById('note-written').textContent = 'Written: ' + midiToName(writtenMidi);
+    document.getElementById('note-concert').textContent = 'Concert: ' + midiToName(concertMidi);
+    document.getElementById('status-dot').classList.add('playing');
+    document.getElementById('status-text').textContent  = pInfo.label + ' partial — playing';
+  } else {
+    stopNote();
+    document.getElementById('note-name').textContent    = '—';
+    document.getElementById('note-name').classList.add('silent');
+    document.getElementById('note-written').textContent = '';
+    document.getElementById('note-concert').textContent = '';
+    document.getElementById('status-dot').classList.remove('playing');
+    document.getElementById('status-text').textContent  = 'Hold a partial key to begin';
+  }
+
+  // Valve visuals
+  ['j','k','l'].forEach((key, i) => {
+    document.getElementById('valve-col-' + (i+1))
+      .classList.toggle('pressed', valvesHeld.has(key));
+  });
+
+  // Partial button highlights
+  PARTIAL_INFO.forEach(p => {
+    document.getElementById('partial-btn-' + p.partial)
+      .classList.toggle('active', partialHeld.has(p.partial));
+  });
+
+  // Fingering guide
+  updateGuide(pInfo, v);
+}
+
+function updateGuide(pInfo, currentV) {
+  const grid = document.getElementById('guide-grid');
+  grid.innerHTML = '';
+
+  if (!pInfo) {
+    const el = document.createElement('div');
+    el.className = 'guide-empty';
+    el.textContent = 'Hold A–H to select a partial.';
+    grid.appendChild(el);
+    return;
+  }
+
+  const header = document.createElement('div');
+  header.className = 'guide-partial-header';
+  header.textContent = pInfo.label + ' partial — ' + midiToName(pInfo.writtenMidi) + ' open';
+  grid.appendChild(header);
+
+  const currentOffset = valveSemitones(currentV);
+
+  VALVE_COMBOS.forEach(({ v, label }) => {
+    const offset      = valveSemitones(v);
+    const writtenMidi = pInfo.writtenMidi + offset;
+    const isCurrent   = offset === currentOffset;
+
+    const noteEl = document.createElement('div');
+    noteEl.className = 'guide-note' + (isCurrent ? ' current' : '');
+    noteEl.textContent = midiToName(writtenMidi);
+
+    const keyEl = document.createElement('div');
+    keyEl.className = 'guide-keys' + (isCurrent ? ' current' : '');
+    keyEl.textContent = label;
+
+    grid.appendChild(noteEl);
+    grid.appendChild(keyEl);
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  BUILD PARTIAL BUTTONS
+// ═══════════════════════════════════════════════
+
+function buildPartialButtons() {
+  const container = document.getElementById('partial-list');
+  const keyForPartial = {};
+  Object.entries(PARTIAL_KEYS).forEach(([k, p]) => keyForPartial[p] = k.toUpperCase());
+
+  PARTIAL_INFO.forEach(p => {
+    const btn = document.createElement('div');
+    btn.className = 'partial-btn';
+    btn.id = 'partial-btn-' + p.partial;
+    btn.innerHTML = `
+      <span class="key-chip">${keyForPartial[p.partial]}</span>
+      <span class="partial-name">${p.label}</span>
+      <span class="partial-note">${p.hint}</span>
+    `;
+    container.appendChild(btn);
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  KEYBOARD EVENTS
+// ═══════════════════════════════════════════════
+
+document.addEventListener('keydown', e => {
+  if (e.repeat) return;
+  const key = e.key.toLowerCase();
+
+  if (PARTIAL_KEYS[key] !== undefined) {
+    e.preventDefault();
+    partialHeld.add(PARTIAL_KEYS[key]);
+    update();
+    return;
+  }
+
+  if (key === 'j' || key === 'k' || key === 'l') {
+    e.preventDefault();
+    valvesHeld.add(key);
+    update();
+  }
+});
+
+document.addEventListener('keyup', e => {
+  const key = e.key.toLowerCase();
+
+  if (PARTIAL_KEYS[key] !== undefined) {
+    partialHeld.delete(PARTIAL_KEYS[key]);
+    update();
+    return;
+  }
+
+  if (key === 'j' || key === 'k' || key === 'l') {
+    valvesHeld.delete(key);
+    update();
+  }
+});
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+
+buildPartialButtons();
+update();
+</script>
+</body>
+</html>
