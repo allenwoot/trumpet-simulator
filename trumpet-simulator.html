@@ -3,59 +3,61 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🎺 Trumpet Simulator</title>
+  <title>Trumpet Simulator</title>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: #100c04;
-      color: #e8c84a;
-      font-family: 'Georgia', 'Times New Roman', serif;
+      background: #f5f4f2;
+      color: #1a1a1a;
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 24px 16px;
+      padding: 32px 16px;
       user-select: none;
     }
 
     header {
       text-align: center;
-      margin-bottom: 28px;
+      margin-bottom: 32px;
     }
     header h1 {
-      font-size: 2rem;
-      color: #d4a800;
-      letter-spacing: 0.06em;
-      text-shadow: 0 0 24px #d4a80055;
+      font-size: 1.1rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      color: #1a1a1a;
     }
     header p {
-      font-size: 0.82rem;
-      color: #7a5f1a;
-      margin-top: 5px;
-      letter-spacing: 0.04em;
+      font-size: 0.75rem;
+      color: #999;
+      margin-top: 4px;
+      letter-spacing: 0.05em;
     }
 
     .layout {
       display: grid;
-      grid-template-columns: 190px 1fr 230px;
-      gap: 16px;
+      grid-template-columns: 170px 1fr 210px;
+      gap: 1px;
       width: 100%;
-      max-width: 820px;
+      max-width: 780px;
+      background: #ddd;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      overflow: hidden;
     }
 
     .panel {
-      background: #1c1508;
-      border: 1px solid #5a430e;
-      border-radius: 14px;
-      padding: 18px 16px;
+      background: #f5f4f2;
+      padding: 20px 18px;
     }
 
     .panel-title {
-      font-size: 0.7rem;
-      letter-spacing: 0.18em;
-      color: #7a5f1a;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      color: #aaa;
       text-transform: uppercase;
       margin-bottom: 14px;
     }
@@ -64,65 +66,57 @@
     .partial-btn {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 9px 11px;
-      margin-bottom: 7px;
-      border: 1px solid #3a2a08;
-      border-radius: 8px;
+      gap: 9px;
+      padding: 7px 9px;
+      margin-bottom: 5px;
+      border-radius: 6px;
       cursor: pointer;
-      transition: all 0.08s;
-      background: #120e04;
+      transition: background 0.08s;
     }
-    .partial-btn:hover { border-color: #7a5f1a; }
-    .partial-btn.active {
-      background: #3a2500;
-      border-color: #d4a800;
-      box-shadow: 0 0 10px #d4a80033;
-    }
+    .partial-btn:hover { background: #ebebea; }
+    .partial-btn.active { background: #1a1a1a; }
 
     .key-chip {
-      background: #1c1508;
-      border: 1px solid #5a430e;
-      border-radius: 5px;
-      padding: 2px 7px;
-      font-family: 'Courier New', monospace;
-      font-size: 0.85rem;
-      min-width: 26px;
+      background: #e8e8e6;
+      border-radius: 4px;
+      padding: 1px 7px;
+      font-family: 'SF Mono', 'Courier New', monospace;
+      font-size: 0.78rem;
+      min-width: 24px;
       text-align: center;
-      color: #c8a040;
-      font-weight: bold;
+      color: #555;
+      font-weight: 600;
     }
     .partial-btn.active .key-chip {
-      background: #d4a800;
-      color: #120e04;
-      border-color: #d4a800;
+      background: #444;
+      color: #f5f4f2;
     }
 
     .partial-name {
-      font-size: 0.82rem;
-      color: #a07820;
+      font-size: 0.8rem;
+      color: #555;
     }
-    .partial-btn.active .partial-name { color: #ffd040; }
+    .partial-btn.active .partial-name { color: #f5f4f2; }
 
     .partial-note {
       margin-left: auto;
-      font-size: 0.75rem;
-      color: #5a430e;
+      font-size: 0.72rem;
+      color: #bbb;
     }
-    .partial-btn.active .partial-note { color: #a07820; }
+    .partial-btn.active .partial-note { color: #999; }
 
     /* ── Center panel ── */
     .center-panel {
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 24px 20px;
+      padding: 28px 20px;
     }
 
     .note-display {
       text-align: center;
-      margin-bottom: 20px;
-      min-height: 110px;
+      margin-bottom: 24px;
+      min-height: 100px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -130,189 +124,280 @@
     }
 
     .note-name {
-      font-size: 5.5rem;
-      font-weight: bold;
+      font-size: 5rem;
+      font-weight: 300;
       line-height: 1;
-      color: #ffd040;
-      text-shadow: 0 0 30px #ffd04077;
+      color: #1a1a1a;
+      letter-spacing: -0.02em;
       transition: color 0.08s;
-      min-width: 160px;
+      min-width: 150px;
       text-align: center;
     }
-    .note-name.silent { color: #3a2a08; text-shadow: none; }
+    .note-name.silent { color: #ddd; }
 
     .note-written {
-      font-size: 0.8rem;
-      color: #7a5f1a;
-      margin-top: 5px;
+      font-size: 0.73rem;
+      color: #aaa;
+      margin-top: 7px;
+      letter-spacing: 0.03em;
     }
     .note-concert {
-      font-size: 0.78rem;
-      color: #5a430e;
+      font-size: 0.71rem;
+      color: #ccc;
       margin-top: 2px;
     }
 
     /* ── Valves ── */
     .valves-section {
       display: flex;
-      gap: 18px;
-      margin-bottom: 20px;
+      gap: 14px;
+      margin-bottom: 22px;
     }
 
     .valve-col {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
     }
 
     .valve-piston-wrap {
       position: relative;
-      width: 58px;
-      height: 90px;
+      width: 44px;
+      height: 72px;
     }
 
-    /* Casing (tube context) */
     .valve-casing {
       position: absolute;
       inset: 0;
-      border-radius: 8px;
-      border: 2px solid #4a3508;
-      background: #0e0a02;
+      border-radius: 6px;
+      background: #e8e8e6;
       overflow: hidden;
     }
 
-    /* The piston itself */
     .valve-piston {
       position: absolute;
-      left: 4px;
-      right: 4px;
-      top: 4px;
-      height: 38px;
-      border-radius: 5px;
-      background: linear-gradient(160deg, #8a6a20 0%, #5a430e 50%, #3a2a08 100%);
-      border: 1px solid #c8a040;
-      transition: top 0.07s cubic-bezier(0.25, 0, 0.5, 1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .valve-piston::after {
-      content: '';
-      position: absolute;
-      top: 5px;
       left: 5px;
       right: 5px;
-      height: 5px;
-      border-radius: 2px;
-      background: rgba(255,220,80,0.15);
+      top: 5px;
+      height: 30px;
+      border-radius: 4px;
+      background: #ccc;
+      transition: top 0.07s cubic-bezier(0.25, 0, 0.5, 1), background 0.07s;
     }
 
     .valve-col.pressed .valve-piston {
-      top: 44px;
-      background: linear-gradient(160deg, #d4a800 0%, #a07820 50%, #7a5f1a 100%);
-      border-color: #ffd040;
-      box-shadow: 0 0 12px #d4a80066;
+      top: 36px;
+      background: #1a1a1a;
     }
 
     .valve-key-label {
-      font-family: 'Courier New', monospace;
-      font-size: 0.9rem;
-      font-weight: bold;
-      color: #7a5f1a;
+      font-family: 'SF Mono', 'Courier New', monospace;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #aaa;
+      transition: color 0.07s;
     }
-    .valve-col.pressed .valve-key-label { color: #ffd040; }
+    .valve-col.pressed .valve-key-label { color: #1a1a1a; }
 
     .valve-num-label {
-      font-size: 0.7rem;
-      color: #4a3508;
+      font-size: 0.65rem;
+      color: #ccc;
     }
-    .valve-col.pressed .valve-num-label { color: #a07820; }
 
     /* ── Status ── */
     .status-row {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 0.78rem;
-      color: #4a3508;
+      gap: 6px;
+      font-size: 0.72rem;
+      color: #ccc;
     }
 
     .status-dot {
-      width: 8px;
-      height: 8px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
-      background: #2a1e06;
-      transition: background 0.1s, box-shadow 0.1s;
+      background: #ddd;
+      transition: background 0.1s;
       flex-shrink: 0;
     }
-    .status-dot.playing {
-      background: #ffd040;
-      box-shadow: 0 0 6px #ffd040aa;
-    }
+    .status-dot.playing { background: #1a1a1a; }
 
     /* ── Fingering guide ── */
     .guide-grid {
       display: grid;
       grid-template-columns: 1fr auto;
-      gap: 5px 12px;
-      font-size: 0.8rem;
+      gap: 5px 14px;
+      font-size: 0.78rem;
     }
 
-    .guide-note { color: #a07820; }
+    .guide-note { color: #888; }
     .guide-keys {
-      color: #5a430e;
-      font-family: 'Courier New', monospace;
+      color: #bbb;
+      font-family: 'SF Mono', 'Courier New', monospace;
+      font-size: 0.72rem;
       text-align: right;
     }
-    .guide-note.current { color: #ffd040; font-weight: bold; }
-    .guide-keys.current { color: #ffd040; font-weight: bold; }
+    .guide-note.current { color: #1a1a1a; font-weight: 600; }
+    .guide-keys.current { color: #555; font-weight: 600; }
 
     .guide-empty {
-      font-size: 0.78rem;
-      color: #3a2a08;
-      line-height: 1.5;
+      font-size: 0.75rem;
+      color: #ccc;
+      line-height: 1.6;
     }
 
     .guide-partial-header {
       grid-column: 1 / -1;
-      font-size: 0.7rem;
-      color: #5a430e;
+      font-size: 0.63rem;
+      color: #bbb;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      margin-bottom: 4px;
-      margin-top: 2px;
+      margin-bottom: 6px;
     }
 
-    /* ── Footer instructions ── */
+    /* ── Key toggle ── */
+    .key-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.72rem;
+      color: #aaa;
+      cursor: pointer;
+    }
+    .toggle-track {
+      width: 32px;
+      height: 18px;
+      border-radius: 9px;
+      background: #ddd;
+      position: relative;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    .toggle-track.on { background: #1a1a1a; }
+    .toggle-thumb {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      transition: left 0.15s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .toggle-track.on .toggle-thumb { left: 16px; }
+
+    /* ── Footer ── */
     footer {
       margin-top: 20px;
-      text-align: center;
-      font-size: 0.75rem;
-      color: #4a3508;
-      line-height: 1.7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      font-size: 0.72rem;
+      color: #bbb;
     }
+    .footer-keys { text-align: center; }
     footer kbd {
-      background: #1c1508;
-      border: 1px solid #4a3508;
+      background: #fff;
+      border: 1px solid #ddd;
       border-radius: 3px;
       padding: 1px 5px;
-      font-family: 'Courier New', monospace;
-      font-size: 0.75rem;
-      color: #8a6a20;
+      font-family: 'SF Mono', 'Courier New', monospace;
+      font-size: 0.7rem;
+      color: #888;
     }
 
-    @media (max-width: 680px) {
+    /* ── Reference chart ── */
+    .ref-toggle-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 0.72rem;
+      color: #aaa;
+      padding: 0;
+      margin-top: 20px;
+    }
+    .ref-toggle-btn:hover { color: #555; }
+    .ref-arrow {
+      font-size: 0.65rem;
+      transition: transform 0.2s;
+      display: inline-block;
+    }
+    .ref-toggle-btn.open .ref-arrow { transform: rotate(90deg); }
+
+    .ref-section {
+      display: none;
+      width: 100%;
+      max-width: 780px;
+      margin-top: 12px;
+      background: #f5f4f2;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 20px 22px;
+    }
+    .ref-section.open { display: block; }
+
+    .ref-title {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      color: #aaa;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .ref-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+    .ref-table th {
+      text-align: center;
+      font-weight: 500;
+      color: #aaa;
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      padding: 0 10px 10px;
+      border-bottom: 1px solid #e8e8e6;
+    }
+    .ref-table th.row-header { text-align: left; color: #ccc; font-size: 0.65rem; }
+    .ref-table td {
+      text-align: center;
+      padding: 7px 10px;
+      color: #888;
+      border-bottom: 1px solid #f0f0ee;
+    }
+    .ref-table td.row-header {
+      text-align: left;
+      font-family: 'SF Mono', 'Courier New', monospace;
+      font-size: 0.72rem;
+      color: #bbb;
+      padding-right: 16px;
+      white-space: nowrap;
+    }
+    .ref-table tr:last-child td { border-bottom: none; }
+    .ref-table td.active-cell {
+      color: #1a1a1a;
+      font-weight: 600;
+    }
+
+    @media (max-width: 640px) {
       .layout { grid-template-columns: 1fr; }
+      .ref-table { font-size: 0.72rem; }
+      .ref-table td, .ref-table th { padding: 6px 6px; }
     }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>🎺 Trumpet Simulator</h1>
-  <p>Bb Trumpet · Web Audio Synthesis</p>
+  <h1>TRUMPET SIMULATOR</h1>
+  <p>Bb trumpet · web audio</p>
 </header>
 
 <div class="layout">
@@ -375,10 +460,26 @@
 </div>
 
 <footer>
-  <kbd>A</kbd>–<kbd>H</kbd> hold for partial &nbsp;·&nbsp;
-  <kbd>J</kbd><kbd>K</kbd><kbd>L</kbd> hold for valves (1st / 2nd / 3rd)
-  &nbsp;·&nbsp; combine freely
+  <div class="footer-keys">
+    <kbd>A</kbd>–<kbd>H</kbd> partial &nbsp;·&nbsp;
+    <kbd>J</kbd><kbd>K</kbd><kbd>L</kbd> valves
+  </div>
+  <label class="key-toggle" id="key-toggle">
+    <div class="toggle-track" id="toggle-track">
+      <div class="toggle-thumb"></div>
+    </div>
+    <span id="toggle-label">Bb trumpet</span>
+  </label>
 </footer>
+
+<button class="ref-toggle-btn" id="ref-toggle-btn">
+  <span class="ref-arrow">▶</span> Fingering reference
+</button>
+
+<div class="ref-section" id="ref-section">
+  <div class="ref-title">All notes by fingering &amp; partial</div>
+  <table class="ref-table" id="ref-table"></table>
+</div>
 
 <script>
 // ═══════════════════════════════════════════════
@@ -399,13 +500,15 @@ function midiToFreq(midi) {
 
 // Written Bb trumpet MIDI for each harmonic partial
 // (concert pitch = written - 2 semitones)
+// writtenMidi = what a Bb trumpet player reads on the page
+// concert pitch = written - 2 semitones (Bb trumpet sounds a major 2nd lower than written)
 const PARTIAL_INFO = [
-  { partial: 2, writtenMidi: 58,  label: '2nd',      hint: 'Bb3' },
-  { partial: 3, writtenMidi: 65,  label: '3rd',      hint: 'F4'  },
-  { partial: 4, writtenMidi: 70,  label: '4th',      hint: 'Bb4' },
-  { partial: 5, writtenMidi: 74,  label: '5th',      hint: 'D5'  },
-  { partial: 6, writtenMidi: 77,  label: '6th',      hint: 'F5'  },
-  { partial: 7, writtenMidi: 80,  label: '7th ♭',    hint: 'Ab5' },
+  { partial: 2, writtenMidi: 60,  label: '2nd',      hintWritten: 'C4',  hintConcert: 'Bb3' },
+  { partial: 3, writtenMidi: 67,  label: '3rd',      hintWritten: 'G4',  hintConcert: 'F4'  },
+  { partial: 4, writtenMidi: 72,  label: '4th',      hintWritten: 'C5',  hintConcert: 'Bb4' },
+  { partial: 5, writtenMidi: 76,  label: '5th',      hintWritten: 'E5',  hintConcert: 'D5'  },
+  { partial: 6, writtenMidi: 79,  label: '6th',      hintWritten: 'G5',  hintConcert: 'F5'  },
+  { partial: 7, writtenMidi: 82,  label: '7th ♭',    hintWritten: 'Bb5', hintConcert: 'Ab5' },
 ];
 
 const PARTIAL_KEYS = { a:2, s:3, d:4, f:5, g:6, h:7 };
@@ -431,48 +534,85 @@ function valveSemitones(v) {
 //  AUDIO ENGINE
 // ═══════════════════════════════════════════════
 
-let actx = null;
+let actx      = null;
 let masterGain = null;
 let filterNode = null;
-let oscNodes = [];          // { osc, gainNode, mult }
-let isPlaying = false;
+let lfoGain    = null;
+let oscNodes   = [];
+let isPlaying  = false;
 
+// Flugel-like: strong fundamental, weak upper harmonics, sine-based
 const HARMONICS = [
-  { mult:1, gain:0.55 },
-  { mult:2, gain:0.22 },
-  { mult:3, gain:0.12 },
-  { mult:4, gain:0.06 },
-  { mult:5, gain:0.03 },
+  { mult:1,  gain:0.62 },
+  { mult:2,  gain:0.22 },
+  { mult:3,  gain:0.09 },
+  { mult:4,  gain:0.030 },
+  { mult:5,  gain:0.010 },
+  { mult:6,  gain:0.004 },
 ];
+
+// Generate a simple exponential-decay noise impulse response for reverb
+function makeReverbIR(actx, duration, decay) {
+  const sr  = actx.sampleRate;
+  const len = Math.floor(sr * duration);
+  const buf = actx.createBuffer(2, len, sr);
+  for (let c = 0; c < 2; c++) {
+    const ch = buf.getChannelData(c);
+    for (let i = 0; i < len; i++) {
+      ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+    }
+  }
+  return buf;
+}
 
 function initAudio() {
   if (actx) return;
   actx = new (window.AudioContext || window.webkitAudioContext)();
 
+  // ── Vibrato LFO ──
+  const lfo = actx.createOscillator();
+  lfo.type = 'sine';
+  lfo.frequency.value = 5.5;          // ~5.5 Hz — natural brass vibrato rate
+  lfoGain = actx.createGain();
+  lfoGain.gain.value = 0;             // silent until note sustains
+  lfo.connect(lfoGain);
+  lfo.start();
+
+  // ── Master gain (amplitude envelope) ──
   masterGain = actx.createGain();
   masterGain.gain.value = 0;
 
+  // ── Lowpass filter — controls brightness ──
   filterNode = actx.createBiquadFilter();
   filterNode.type = 'lowpass';
-  filterNode.frequency.value = 3000;
-  filterNode.Q.value = 0.6;
+  filterNode.frequency.value = 600;
+  filterNode.Q.value = 0.5;
 
-  // Slight saturation for warmth
-  const waveShaper = actx.createWaveShaper();
-  waveShaper.curve = softClip(256, 18);
-  waveShaper.oversample = '4x';
+  // ── Convolution reverb (generated IR) ──
+  const convolver = actx.createConvolver();
+  convolver.buffer = makeReverbIR(actx, 1.4, 3.5);
+  const reverbGain = actx.createGain();
+  reverbGain.gain.value = 0.22;
 
-  masterGain.connect(waveShaper);
-  waveShaper.connect(filterNode);
-  filterNode.connect(actx.destination);
+  // ── Routing: oscillators → masterGain → filter → dry out + reverb ──
+  const dryGain = actx.createGain();
+  dryGain.gain.value = 1.0;
 
-  // Persistent oscillators
+  masterGain.connect(filterNode);
+  filterNode.connect(dryGain);
+  filterNode.connect(convolver);
+  convolver.connect(reverbGain);
+  dryGain.connect(actx.destination);
+  reverbGain.connect(actx.destination);
+
+  // ── Sine oscillators (much warmer than sawtooth) ──
   HARMONICS.forEach(({ mult, gain }) => {
     const osc = actx.createOscillator();
     const gn  = actx.createGain();
-    osc.type = 'sawtooth';
+    osc.type = 'sine';
     osc.frequency.value = 440 * mult;
     gn.gain.value = gain;
+    lfoGain.connect(osc.detune);      // vibrato modulates each oscillator
     osc.connect(gn);
     gn.connect(masterGain);
     osc.start();
@@ -480,44 +620,56 @@ function initAudio() {
   });
 }
 
-function softClip(n, amount) {
-  const curve = new Float32Array(n);
-  for (let i = 0; i < n; i++) {
-    const x = (i * 2) / n - 1;
-    curve[i] = (Math.PI + amount) * x / (Math.PI + amount * Math.abs(x));
-  }
-  return curve;
-}
-
 function setNote(freq) {
   initAudio();
   if (actx.state === 'suspended') actx.resume();
   const now = actx.currentTime;
 
-  // Update oscillator frequencies smoothly
+  // Smooth pitch glide to new frequency
   oscNodes.forEach(({ osc, mult }) => {
     osc.frequency.cancelScheduledValues(now);
-    osc.frequency.setTargetAtTime(freq * mult, now, 0.012);
+    osc.frequency.setTargetAtTime(freq * mult, now, 0.014);
   });
 
-  // Update filter cutoff
-  filterNode.frequency.cancelScheduledValues(now);
-  filterNode.frequency.setTargetAtTime(Math.min(freq * 7, 12000), now, 0.015);
-
   if (!isPlaying) {
+    // Bright attack → warm sustain filter sweep
+    filterNode.frequency.cancelScheduledValues(now);
+    filterNode.frequency.setValueAtTime(freq * 10, now);
+    filterNode.frequency.setTargetAtTime(freq * 2.8, now + 0.04, 0.10);
+
+    // Amplitude: fast attack
     masterGain.gain.cancelScheduledValues(now);
-    masterGain.gain.setValueAtTime(masterGain.gain.value, now);
-    masterGain.gain.linearRampToValueAtTime(0.28, now + 0.07);
+    masterGain.gain.setValueAtTime(0, now);
+    masterGain.gain.linearRampToValueAtTime(0.30, now + 0.075);
+
+    // Vibrato fades in after ~350 ms (realistic brass technique)
+    lfoGain.gain.cancelScheduledValues(now);
+    lfoGain.gain.setValueAtTime(0, now);
+    lfoGain.gain.setTargetAtTime(9, now + 0.35, 0.12);   // ±9 cents
+
     isPlaying = true;
+  } else {
+    // Note change: small brightness bump to mark the new attack
+    filterNode.frequency.cancelScheduledValues(now);
+    filterNode.frequency.setValueAtTime(filterNode.frequency.value, now);
+    filterNode.frequency.setTargetAtTime(freq * 2.8, now, 0.06);
   }
 }
 
 function stopNote() {
   if (!actx || !isPlaying) return;
   const now = actx.currentTime;
+
+  // Kill vibrato immediately
+  lfoGain.gain.cancelScheduledValues(now);
+  lfoGain.gain.setValueAtTime(lfoGain.gain.value, now);
+  lfoGain.gain.linearRampToValueAtTime(0, now + 0.06);
+
+  // Natural release
   masterGain.gain.cancelScheduledValues(now);
   masterGain.gain.setValueAtTime(masterGain.gain.value, now);
-  masterGain.gain.linearRampToValueAtTime(0, now + 0.11);
+  masterGain.gain.linearRampToValueAtTime(0, now + 0.18);
+
   isPlaying = false;
 }
 
@@ -527,6 +679,7 @@ function stopNote() {
 
 const partialHeld  = new Set();   // partial numbers currently held
 const valvesHeld   = new Set();   // 'j','k','l'
+let concertMode    = false;
 
 function activePartial() {
   // Highest partial held (player chooses by which key they hold)
@@ -559,10 +712,15 @@ function update() {
 
     setNote(freq);
 
-    document.getElementById('note-name').textContent    = midiToName(writtenMidi);
+    const primaryMidi   = concertMode ? concertMidi : writtenMidi;
+    const secondaryMidi = concertMode ? writtenMidi : concertMidi;
+    const primaryLabel  = concertMode ? 'Concert' : 'Written';
+    const secondaryLabel= concertMode ? 'Written (Bb)' : 'Concert';
+
+    document.getElementById('note-name').textContent    = midiToName(primaryMidi);
     document.getElementById('note-name').classList.remove('silent');
-    document.getElementById('note-written').textContent = 'Written: ' + midiToName(writtenMidi);
-    document.getElementById('note-concert').textContent = 'Concert: ' + midiToName(concertMidi);
+    document.getElementById('note-written').textContent = primaryLabel + ': ' + midiToName(primaryMidi);
+    document.getElementById('note-concert').textContent = secondaryLabel + ': ' + midiToName(secondaryMidi);
     document.getElementById('status-dot').classList.add('playing');
     document.getElementById('status-text').textContent  = pInfo.label + ' partial — playing';
   } else {
@@ -589,6 +747,9 @@ function update() {
 
   // Fingering guide
   updateGuide(pInfo, v);
+
+  // Reference table highlight
+  updateRefTable();
 }
 
 function updateGuide(pInfo, currentV) {
@@ -603,9 +764,11 @@ function updateGuide(pInfo, currentV) {
     return;
   }
 
+  const openWritten = pInfo.writtenMidi;
+  const openDisplay = concertMode ? openWritten - 2 : openWritten;
   const header = document.createElement('div');
   header.className = 'guide-partial-header';
-  header.textContent = pInfo.label + ' partial — ' + midiToName(pInfo.writtenMidi) + ' open';
+  header.textContent = pInfo.label + ' partial — ' + midiToName(openDisplay) + ' open';
   grid.appendChild(header);
 
   const currentOffset = valveSemitones(currentV);
@@ -613,11 +776,12 @@ function updateGuide(pInfo, currentV) {
   VALVE_COMBOS.forEach(({ v, label }) => {
     const offset      = valveSemitones(v);
     const writtenMidi = pInfo.writtenMidi + offset;
+    const displayMidi = concertMode ? writtenMidi - 2 : writtenMidi;
     const isCurrent   = offset === currentOffset;
 
     const noteEl = document.createElement('div');
     noteEl.className = 'guide-note' + (isCurrent ? ' current' : '');
-    noteEl.textContent = midiToName(writtenMidi);
+    noteEl.textContent = midiToName(displayMidi);
 
     const keyEl = document.createElement('div');
     keyEl.className = 'guide-keys' + (isCurrent ? ' current' : '');
@@ -644,9 +808,16 @@ function buildPartialButtons() {
     btn.innerHTML = `
       <span class="key-chip">${keyForPartial[p.partial]}</span>
       <span class="partial-name">${p.label}</span>
-      <span class="partial-note">${p.hint}</span>
+      <span class="partial-note" id="partial-hint-${p.partial}">${p.hintWritten}</span>
     `;
     container.appendChild(btn);
+  });
+}
+
+function updatePartialHints() {
+  PARTIAL_INFO.forEach(p => {
+    const el = document.getElementById('partial-hint-' + p.partial);
+    if (el) el.textContent = concertMode ? p.hintConcert : p.hintWritten;
   });
 }
 
@@ -693,6 +864,78 @@ document.addEventListener('keyup', e => {
 
 buildPartialButtons();
 update();
+
+// ── Key mode toggle ──
+document.getElementById('key-toggle').addEventListener('click', () => {
+  concertMode = !concertMode;
+  document.getElementById('toggle-track').classList.toggle('on', concertMode);
+  document.getElementById('toggle-label').textContent = concertMode ? 'Concert' : 'Bb trumpet';
+  updatePartialHints();
+  buildRefTable();
+  update();
+});
+
+// ── Reference table ──
+function buildRefTable() {
+  const table = document.getElementById('ref-table');
+  table.innerHTML = '';
+
+  // Header row: blank corner + partial labels
+  const thead = table.createTHead();
+  const hrow = thead.insertRow();
+  const cornerTh = document.createElement('th');
+  cornerTh.className = 'row-header';
+  cornerTh.textContent = 'Fingering';
+  hrow.appendChild(cornerTh);
+  PARTIAL_INFO.forEach(p => {
+    const th = document.createElement('th');
+    th.textContent = p.label;
+    hrow.appendChild(th);
+  });
+
+  // Body rows: one per valve combo
+  const tbody = table.createTBody();
+  VALVE_COMBOS.forEach(({ v, label }) => {
+    const row = tbody.insertRow();
+    const headerCell = row.insertCell();
+    headerCell.className = 'row-header';
+    headerCell.textContent = label;
+
+    PARTIAL_INFO.forEach(p => {
+      const offset      = valveSemitones(v);
+      const writtenMidi = p.writtenMidi + offset;
+      const displayMidi = concertMode ? writtenMidi - 2 : writtenMidi;
+      const cell        = row.insertCell();
+      cell.textContent  = midiToName(displayMidi);
+
+      // Highlight the currently active cell
+      const activeP  = activePartial();
+      const activeV  = valveVector();
+      if (activeP === p.partial && valveSemitones(activeV) === offset) {
+        cell.className = 'active-cell';
+      }
+    });
+  });
+}
+
+function updateRefTable() {
+  if (!document.getElementById('ref-section').classList.contains('open')) return;
+  buildRefTable();
+}
+
+// Rebuild ref table highlight whenever state changes
+const _origUpdate = update;
+// Patch update to also refresh ref table
+const _baseUpdate = update;
+
+// Reference toggle
+document.getElementById('ref-toggle-btn').addEventListener('click', () => {
+  const btn = document.getElementById('ref-toggle-btn');
+  const section = document.getElementById('ref-section');
+  const isOpen = section.classList.toggle('open');
+  btn.classList.toggle('open', isOpen);
+  if (isOpen) buildRefTable();
+});
 </script>
 </body>
 </html>
